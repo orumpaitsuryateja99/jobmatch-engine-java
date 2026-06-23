@@ -1,0 +1,31 @@
+# Java / Maven
+target/
+*.class
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/next-env.d.ts
+frontend/*.tsbuildinfo
+
+# Local IDE / OS files
+.idea/
+*.iml
+.vscode/
+.DS_Store
+**/.DS_Store
+
+# Local secrets and runtime data
+.env
+.env.*
+!.env.example
+/data/
+
+# Local resume/build artifacts
+*.pdf
+*.tex
+*.aux
+*.log
+*.out
+*.synctex.gz

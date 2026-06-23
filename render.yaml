@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: jobmatch-engine-java
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /api/tracker
+    envVars:
+      - key: APP_KAFKA_ENABLED
+        value: "false"
+      - key: JAVA_OPTS
+        value: "-Xms256m -Xmx512m"

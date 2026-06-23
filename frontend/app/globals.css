@@ -1,0 +1,53 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+  }
+}
+
+/* Reusable component classes built on Tailwind @apply — keeps the JSX readable
+   while staying 100% Tailwind under the hood. */
+@layer components {
+  .seg {
+    @apply min-h-[44px] flex items-center px-[18px] rounded-t-[10px] font-semibold
+           text-muted cursor-pointer transition-all duration-200 ease-spring bg-transparent border-0 text-[0.95rem];
+  }
+  .seg:hover { @apply text-ink bg-accent/5; }
+  .seg-active { @apply text-accent bg-accent/10; }
+
+  .card { @apply bg-surface border border-line rounded-xl2 p-6 my-4 shadow-card; }
+  .card-tight { @apply bg-surface border border-line rounded-2xl p-4 my-3 shadow-soft; }
+
+  .lbl { @apply block text-[0.8rem] text-muted font-semibold mb-1.5; }
+  .field {
+    @apply w-full px-3 py-2 bg-white border border-line rounded-[11px] text-ink text-sm
+           outline-none transition-shadow focus:shadow-ring focus:border-accent;
+  }
+
+  .btn {
+    @apply rounded-xl font-semibold px-4 py-2 border border-line bg-surface text-ink shadow-soft
+           cursor-pointer text-sm transition-all duration-150 ease-spring
+           hover:border-accent hover:text-accent hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply rounded-xl font-semibold px-4 py-2 border-0 bg-accent text-white cursor-pointer text-sm
+           shadow-[0_4px_14px_rgba(37,99,235,.32)] transition-all duration-150 ease-spring
+           hover:bg-accent-dark hover:-translate-y-px disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-sm { @apply px-2.5 py-1.5 text-xs; }
+
+  .alert { @apply rounded-[14px] px-4 py-3 text-sm my-3; }
+  .alert-info { @apply bg-blue-100 text-blue-800; }
+  .alert-warn { @apply bg-amber-100 text-amber-700; }
+  .alert-good { @apply bg-green-100 text-green-700; }
+  .alert-bad  { @apply bg-red-100 text-red-700; }
+
+  .chip { @apply px-2.5 py-0.5 rounded-md text-xs bg-slate-100 border border-line text-slate-700; }
+  .chip-hit  { @apply bg-green-100 border-green-200 text-green-800; }
+  .chip-miss { @apply bg-red-100 border-red-200 text-red-800; }
+
+  .check { @apply flex items-center gap-2 text-[0.88rem] text-ink font-medium cursor-pointer; }
+}

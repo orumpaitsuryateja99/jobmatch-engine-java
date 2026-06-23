@@ -1,0 +1,73 @@
+services:
+  kafka:
+    image: bitnami/kafka:3.7
+    container_name: jobmatch-kafka
+    ports:
+      - "9094:9094"
+    environment:
+      KAFKA_CFG_NODE_ID: 1
+      KAFKA_CFG_PROCESS_ROLES: broker,controller
+      KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_CFG_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      KAFKA_CFG_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
+      ALLOW_PLAINTEXT_LISTENER: "yes"
+    volumes:
+      - kafka_data:/bitnami/kafka
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: jobmatch-kafka-ui
+    ports:
+      - "8085:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: jobmatch-local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+    depends_on:
+      - kafka
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: jobmatch-backend
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      APP_KAFKA_ENABLED: "true"
+      APP_KAFKA_TRACKER_TOPIC: jobmatch.tracker.events
+      ADZUNA_APP_ID: ${ADZUNA_APP_ID:-}
+      ADZUNA_APP_KEY: ${ADZUNA_APP_KEY:-}
+      SERPAPI_API_KEY: ${SERPAPI_API_KEY:-}
+      JSEARCH_API_KEY: ${JSEARCH_API_KEY:-}
+      JSEARCH_RAPIDAPI_KEY: ${JSEARCH_RAPIDAPI_KEY:-}
+      CAREERJET_AFFID: ${CAREERJET_AFFID:-}
+      JOOBLE_API_KEY: ${JOOBLE_API_KEY:-}
+      BRAVE_API_KEY: ${BRAVE_API_KEY:-}
+      BING_API_KEY: ${BING_API_KEY:-}
+      GOOGLE_API_KEY: ${GOOGLE_API_KEY:-}
+      GOOGLE_CX: ${GOOGLE_CX:-}
+      TAVILY_API_KEY: ${TAVILY_API_KEY:-}
+    volumes:
+      - ./data:/app/data
+    depends_on:
+      - kafka
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: jobmatch-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      SPRING_API_URL: http://backend:8080
+    depends_on:
+      - backend
+
+volumes:
+  kafka_data:

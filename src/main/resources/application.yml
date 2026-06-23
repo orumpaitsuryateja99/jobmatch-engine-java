@@ -1,0 +1,25 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: jobmatch-engine
+  servlet:
+    multipart:
+      max-file-size: 20MB
+      max-request-size: 20MB
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.StringSerializer
+      retries: 1
+
+logging:
+  level:
+    com.orumpati.jobmatch: INFO
+
+app:
+  kafka:
+    enabled: ${APP_KAFKA_ENABLED:false}
+    tracker-topic: ${APP_KAFKA_TRACKER_TOPIC:jobmatch.tracker.events}
