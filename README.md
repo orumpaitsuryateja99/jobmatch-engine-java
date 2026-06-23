@@ -3,6 +3,8 @@
 Full-stack job-search automation: parse a résumé, pull jobs from many live sources,
 ATS-score them against the résumé, tailor a one-page LaTeX résumé, and track applications.
 
+**GitHub Pages project page:** https://orumpaitsuryateja99.github.io/jobmatch-engine-java/
+
 ## Tech stack
 
 **Frontend** (`/frontend`)

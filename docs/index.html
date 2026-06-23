@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>JobMatch Engine Java</title>
+    <meta
+      name="description"
+      content="Java Spring Boot and Next.js job automation platform for resume parsing, job discovery, ATS scoring, tailoring, and application tracking."
+    />
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #142033;
+        --muted: #5c6b82;
+        --line: #d8e1ec;
+        --panel: rgba(255, 255, 255, 0.92);
+        --brand: #17436d;
+        --brand-2: #2c7a64;
+        --accent: #c73d32;
+        --wash: #f3f6f9;
+        --dark: #0f1d2d;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: var(--ink);
+        background: #ffffff;
+        line-height: 1.5;
+      }
+
+      a {
+        color: inherit;
+      }
+
+      .topbar {
+        position: fixed;
+        inset: 0 0 auto;
+        z-index: 10;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+        padding: 14px clamp(20px, 5vw, 72px);
+        background: rgba(255, 255, 255, 0.88);
+        border-bottom: 1px solid rgba(216, 225, 236, 0.8);
+        backdrop-filter: blur(12px);
+      }
+
+      .mark {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .mark-symbol {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        color: #ffffff;
+        background: var(--brand);
+        font-size: 15px;
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .nav a {
+        text-decoration: none;
+      }
+
+      .hero {
+        position: relative;
+        min-height: 92vh;
+        overflow: hidden;
+        display: grid;
+        align-items: center;
+        padding: 108px clamp(20px, 5vw, 72px) 64px;
+        background:
+          linear-gradient(90deg, rgba(15, 29, 45, 0.92), rgba(15, 29, 45, 0.78) 44%, rgba(15, 29, 45, 0.28)),
+          #e9eef4;
+      }
+
+      .hero::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px),
+          linear-gradient(0deg, rgba(255,255,255,0.08) 1px, transparent 1px);
+        background-size: 48px 48px;
+        opacity: 0.5;
+      }
+
+      .product-preview {
+        position: absolute;
+        right: clamp(-280px, -8vw, -40px);
+        top: 118px;
+        width: min(780px, 64vw);
+        min-width: 600px;
+        border: 1px solid rgba(255, 255, 255, 0.32);
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 28px 80px rgba(0, 0, 0, 0.35);
+        transform: rotate(-1deg);
+      }
+
+      .preview-head {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        height: 38px;
+        padding: 0 16px;
+        background: #f9fbfd;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: #d84c44;
+      }
+
+      .dot:nth-child(2) {
+        background: #d6a642;
+      }
+
+      .dot:nth-child(3) {
+        background: #49a45d;
+      }
+
+      .preview-body {
+        min-height: 480px;
+        padding: 22px;
+        background: #f5f8fb;
+      }
+
+      .preview-banner {
+        height: 58px;
+        padding: 14px 18px;
+        color: #ffffff;
+        border-radius: 8px;
+        background: var(--brand);
+        font-weight: 800;
+      }
+
+      .preview-layout {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .preview-pane {
+        min-height: 318px;
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+      }
+
+      .preview-title {
+        width: 48%;
+        height: 16px;
+        margin-bottom: 18px;
+        border-radius: 999px;
+        background: #24364d;
+      }
+
+      .check-row,
+      .job-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin: 14px 0;
+      }
+
+      .check {
+        width: 14px;
+        height: 14px;
+        border-radius: 4px;
+        background: #2f6fed;
+      }
+
+      .line {
+        height: 12px;
+        flex: 1;
+        border-radius: 999px;
+        background: #dce5ee;
+      }
+
+      .line.short {
+        flex: 0 0 54%;
+      }
+
+      .job-row {
+        align-items: stretch;
+        padding: 12px;
+        border: 1px solid #e1e8f0;
+        border-radius: 8px;
+        background: #fbfdff;
+      }
+
+      .score {
+        display: grid;
+        place-items: center;
+        width: 54px;
+        border-radius: 8px;
+        color: #ffffff;
+        background: var(--brand-2);
+        font-weight: 800;
+      }
+
+      .hero-content {
+        position: relative;
+        z-index: 1;
+        width: min(670px, 100%);
+        color: #ffffff;
+      }
+
+      .eyebrow {
+        margin: 0 0 14px;
+        color: #b9d6ef;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(42px, 6vw, 76px);
+        line-height: 0.96;
+        letter-spacing: 0;
+      }
+
+      .hero-copy {
+        max-width: 610px;
+        margin: 22px 0 0;
+        color: #d7e4ef;
+        font-size: clamp(17px, 2vw, 21px);
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 30px;
+      }
+
+      .button {
+        display: inline-flex;
+        min-height: 44px;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 0 18px;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 800;
+      }
+
+      .button.primary {
+        color: var(--dark);
+        background: #ffffff;
+      }
+
+      .button.secondary {
+        color: #ffffff;
+        border: 1px solid rgba(255, 255, 255, 0.52);
+      }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1px;
+        background: var(--line);
+      }
+
+      .metric {
+        padding: 26px clamp(18px, 4vw, 44px);
+        background: #ffffff;
+      }
+
+      .metric strong {
+        display: block;
+        color: var(--brand);
+        font-size: clamp(26px, 4vw, 42px);
+        line-height: 1;
+      }
+
+      .metric span {
+        display: block;
+        margin-top: 8px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .section {
+        padding: 72px clamp(20px, 5vw, 72px);
+      }
+
+      .section.alt {
+        background: var(--wash);
+      }
+
+      .section-head {
+        max-width: 790px;
+        margin-bottom: 30px;
+      }
+
+      h2 {
+        margin: 0;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      .section-head p {
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 17px;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      .feature,
+      .step,
+      .note {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #ffffff;
+        padding: 22px;
+      }
+
+      .feature h3,
+      .step h3,
+      .note h3 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+
+      .feature p,
+      .step p,
+      .note p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .stack {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .pill {
+        padding: 9px 12px;
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        background: #ffffff;
+        color: #25344a;
+        font-weight: 750;
+      }
+
+      .steps {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+
+      code {
+        display: block;
+        overflow-x: auto;
+        margin-top: 14px;
+        padding: 14px;
+        border-radius: 8px;
+        color: #edf6ff;
+        background: #111f30;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .footer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 28px clamp(20px, 5vw, 72px);
+        color: #c9d6e2;
+        background: var(--dark);
+      }
+
+      .footer a {
+        color: #ffffff;
+      }
+
+      @media (max-width: 960px) {
+        .product-preview {
+          position: relative;
+          right: auto;
+          top: auto;
+          width: 100%;
+          min-width: 0;
+          margin-top: 38px;
+          transform: none;
+        }
+
+        .hero {
+          min-height: auto;
+          background: var(--dark);
+        }
+
+        .metrics,
+        .feature-grid,
+        .steps {
+          grid-template-columns: repeat(2, 1fr);
+        }
+      }
+
+      @media (max-width: 680px) {
+        .topbar {
+          position: static;
+        }
+
+        .nav {
+          display: none;
+        }
+
+        .hero {
+          padding-top: 54px;
+        }
+
+        .preview-layout,
+        .metrics,
+        .feature-grid,
+        .steps {
+          grid-template-columns: 1fr;
+        }
+
+        .preview-body {
+          min-height: auto;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="mark">
+        <span class="mark-symbol">JM</span>
+        <span>JobMatch Engine</span>
+      </div>
+      <nav class="nav" aria-label="Project navigation">
+        <a href="#features">Features</a>
+        <a href="#stack">Stack</a>
+        <a href="#run">Run</a>
+        <a href="https://github.com/orumpaitsuryateja99/jobmatch-engine-java">GitHub</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Java full-stack job automation platform</p>
+          <h1>JobMatch Engine Java</h1>
+          <p class="hero-copy">
+            A Spring Boot and Next.js system that parses a resume, pulls jobs from sponsor boards
+            and aggregators, scores each role against the resume, tailors a one-page LaTeX resume,
+            and tracks saved or applied jobs in SQLite.
+          </p>
+          <div class="actions">
+            <a class="button primary" href="https://github.com/orumpaitsuryateja99/jobmatch-engine-java">
+              View GitHub Repo
+            </a>
+            <a class="button secondary" href="#run">Run Locally</a>
+          </div>
+        </div>
+
+        <div class="product-preview" aria-hidden="true">
+          <div class="preview-head">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <div class="preview-body">
+            <div class="preview-banner">Path A - Search / Pull Jobs Automatically</div>
+            <div class="preview-layout">
+              <div class="preview-pane">
+                <div class="preview-title"></div>
+                <div class="check-row"><span class="check"></span><span class="line"></span></div>
+                <div class="check-row"><span class="check"></span><span class="line short"></span></div>
+                <div class="check-row"><span class="check"></span><span class="line"></span></div>
+                <div class="check-row"><span class="check"></span><span class="line short"></span></div>
+                <div class="check-row"><span class="check"></span><span class="line"></span></div>
+              </div>
+              <div class="preview-pane">
+                <div class="preview-title"></div>
+                <div class="job-row">
+                  <span class="score">87</span>
+                  <span class="line"></span>
+                </div>
+                <div class="job-row">
+                  <span class="score">81</span>
+                  <span class="line short"></span>
+                </div>
+                <div class="job-row">
+                  <span class="score">76</span>
+                  <span class="line"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Project highlights">
+        <div class="metric"><strong>15+</strong><span>job-source integrations</span></div>
+        <div class="metric"><strong>267</strong><span>sponsor boards cataloged</span></div>
+        <div class="metric"><strong>24h</strong><span>freshness filtering</span></div>
+        <div class="metric"><strong>SQL</strong><span>saved/applied tracker</span></div>
+      </section>
+
+      <section class="section" id="features">
+        <div class="section-head">
+          <h2>Built for fresh, relevant job search</h2>
+          <p>
+            The project automates the repetitive parts of job hunting while keeping the ranking
+            logic transparent and deterministic.
+          </p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature">
+            <h3>Multi-source ingestion</h3>
+            <p>Pulls from Greenhouse, Lever, Ashby, Workday, SmartRecruiters, The Muse, Adzuna, JSearch, Careerjet, Jooble, Remotive, RemoteOK, and discovery APIs.</p>
+          </article>
+          <article class="feature">
+            <h3>ATS match scoring</h3>
+            <p>Scores jobs against resume skills, keywords, title fit, tools, experience, domain signals, and formatting readiness.</p>
+          </article>
+          <article class="feature">
+            <h3>Application tracker</h3>
+            <p>Stores saved and applied jobs in SQLite so already-applied roles can be hidden from future match pulls.</p>
+          </article>
+          <article class="feature">
+            <h3>Resume tailoring</h3>
+            <p>Generates deterministic LaTeX resume variants from proven resume facts without inventing unsupported experience.</p>
+          </article>
+          <article class="feature">
+            <h3>Docker support</h3>
+            <p>Includes backend and frontend Dockerfiles plus Compose support for local full-stack runs.</p>
+          </article>
+          <article class="feature">
+            <h3>Kafka events</h3>
+            <p>Publishes tracker lifecycle events when Kafka is enabled, while keeping local and hosted demos simple when disabled.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section alt" id="stack">
+        <div class="section-head">
+          <h2>Technology stack</h2>
+          <p>Java backend, modern TypeScript frontend, SQL persistence, and deployable container packaging.</p>
+        </div>
+        <div class="stack">
+          <span class="pill">Java 17</span>
+          <span class="pill">Spring Boot 3.3</span>
+          <span class="pill">Spring MVC REST</span>
+          <span class="pill">Maven</span>
+          <span class="pill">Next.js 14</span>
+          <span class="pill">React 18</span>
+          <span class="pill">TypeScript</span>
+          <span class="pill">Tailwind CSS</span>
+          <span class="pill">SQLite/JDBC</span>
+          <span class="pill">Apache PDFBox</span>
+          <span class="pill">Apache POI</span>
+          <span class="pill">Kafka</span>
+          <span class="pill">Docker</span>
+        </div>
+      </section>
+
+      <section class="section" id="run">
+        <div class="section-head">
+          <h2>Run the working app</h2>
+          <p>
+            This GitHub Pages site is static. The full interactive app runs locally with the
+            Spring Boot backend, SQLite tracker, and optional Kafka services.
+          </p>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Clone</h3>
+            <p>Get the full source from GitHub.</p>
+            <code>git clone https://github.com/orumpaitsuryateja99/jobmatch-engine-java.git
+cd jobmatch-engine-java</code>
+          </article>
+          <article class="step">
+            <h3>Local dev</h3>
+            <p>Start the backend and frontend together.</p>
+            <code>./run.sh</code>
+          </article>
+          <article class="step">
+            <h3>Docker + Kafka</h3>
+            <p>Run the containerized stack with Kafka UI.</p>
+            <code>docker compose up --build</code>
+          </article>
+        </div>
+      </section>
+
+      <section class="section alt">
+        <div class="note">
+          <h3>GitHub Pages hosting note</h3>
+          <p>
+            GitHub Pages cannot run Java, SQLite, Kafka, or private API-key-backed job pulls.
+            This page is the GitHub-hosted project showcase. The full app is available from
+            the repository and can be run locally or deployed to a backend-capable host.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <span>JobMatch Engine Java</span>
+      <a href="https://github.com/orumpaitsuryateja99/jobmatch-engine-java">github.com/orumpaitsuryateja99/jobmatch-engine-java</a>
+    </footer>
+  </body>
+</html>
