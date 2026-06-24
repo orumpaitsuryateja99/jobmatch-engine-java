@@ -1,13 +1,9 @@
 /** @type {import('next').NextConfig} */
-const API = process.env.SPRING_API_URL || "http://localhost:8080";
-
+// API calls to /api/* are handled at runtime by app/api/[...path]/route.ts, which
+// proxies to the Spring Boot backend (SPRING_API_URL). No build-time rewrite, so
+// the backend URL can be injected at deploy time (Render) rather than baked in.
 const nextConfig = {
   reactStrictMode: true,
-  // Proxy every /api/* call to the Spring Boot backend so the browser only ever
-  // talks to the Next.js origin — no CORS config needed in dev or prod.
-  async rewrites() {
-    return [{ source: "/api/:path*", destination: `${API}/api/:path*` }];
-  },
 };
 
 export default nextConfig;

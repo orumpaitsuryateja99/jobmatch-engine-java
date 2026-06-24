@@ -1,6 +1,7 @@
 services:
+  # Spring Boot REST backend (binds Render's $PORT via application.yml).
   - type: web
-    name: jobmatch-engine-java
+    name: jobmatch-backend
     runtime: docker
     dockerfilePath: ./Dockerfile
     plan: free
@@ -9,4 +10,19 @@ services:
       - key: APP_KAFKA_ENABLED
         value: "false"
       - key: JAVA_OPTS
-        value: "-Xms256m -Xmx512m"
+        value: "-Xmx450m"
+
+  # Next.js frontend. SPRING_API_URL is injected from the backend service host at
+  # deploy time and read at runtime by app/api/[...path]/route.ts.
+  - type: web
+    name: jobmatch-frontend
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: SPRING_API_URL
+        fromService:
+          type: web
+          name: jobmatch-backend
+          property: host
